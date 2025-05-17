@@ -1,0 +1,57 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+
+<div class="container bg-light" >
+    <div class="row d-flex justify-content-center">
+        <h1>Registro de valor activo</h1>
+        <h5>Organizar desde el mas reciente al mas antiguo</h5>
+    </div>
+
+
+
+    <div class="card">
+        
+            <div class="card-header">
+
+                <form asp-action="index" method="post">
+                    <div class="row">
+                        <div class="col-md-6">
+                            @for (int i = 1; i < 20; i++)
+                            {
+                                <div class="mb-2">
+                                    <label class="form-label">Fecha @i</label>
+                                    <input type="date" class="form-control   name = " Fecha[@i]" />
+                                </div>
+
+                            }
+                        </div>
+                        <div class="col-md-6">
+                            @for (int i = 1; i < 20; i++)
+                            {
+                                <div class="mb-2">
+                                    <label class="form-label"> Valor @i</label>
+                                    <input class="form-control" name="valores[@i]" />
+                                </div>
+                            }
+
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+                        <button type="submit" class="btn btn-outline-success">Calcular</button>
+                    </div>
+                </form>
+
+
+
+            </div>
+
+            <div class="card-footer">
+
+            </div>
+    </div>
+
+</div>
