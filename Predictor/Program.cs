@@ -1,3 +1,9 @@
+using Logica.Interfaces;
+using Logica.Services; // Asegúrate que PredictionService esté aquí
+using Logica.Models;   // Para PredictionModeSingleton
+using Predictor.ViewModels;
+using static Logica.Models.PredictionModeSinglenton; // Para los ViewModels
+
 namespace Predictor
 {
     public class Program
@@ -9,13 +15,19 @@ namespace Predictor
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
+            // Registrar servicios CORRECTAMENTE
+            builder.Services.AddSingleton<IPredictionService, PredictionService>();
+
+            // Registrar el Singleton de forma adecuada
+            builder.Services.AddSingleton<PredictionModeSingleton>(provider =>
+                PredictionModeSingleton.Instance);
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 

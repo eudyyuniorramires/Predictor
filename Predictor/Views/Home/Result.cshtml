@@ -1,0 +1,78 @@
+﻿<!-- WebApp/Views/Home/Result.cshtml -->
+@model PredictionResultViewModel
+
+<div class="container mt-4">
+    <h2>Resultado de la Predicción</h2>
+    <h4>Método: @Model.Result.PredictionMode</h4>
+
+    <div class="card mt-4">
+        <div class="card-header">
+            Detalles del Resultado
+        </div>
+        <div class="card-body">
+            @if (Model.Result.PredictionMode == "Media Móvil Simple (SMA) Crossover")
+            {
+                <p><strong>SMA Corto Plazo (5 días):</strong> @Model.Result.ShortTermSMA?.ToString("N2")</p>
+                <p><strong>SMA Largo Plazo (20 días):</strong> @Model.Result.LongTermSMA?.ToString("N2")</p>
+                <p>
+                    <strong>Tendencia:</strong>
+                    <span class="@(Model.Result.Trend == "Alcista" ? "text-success" : "text-danger")">
+                        @Model.Result.Trend
+                    </span>
+                </p>
+            }
+            else if (Model.Result.PredictionMode == "Regresión Lineal")
+            {
+                <p><strong>Valor Predicho para el día 21:</strong> @Model.Result.PredictedValue?.ToString("N2")</p>
+                <p><strong>Pendiente:</strong> @Model.Result.Slope?.ToString("N4")</p>
+                <p>
+                    <strong>Tendencia:</strong>
+                    <span class="@(Model.Result.Trend == "Alcista" ? "text-success" : "text-danger")">
+                        @Model.Result.Trend
+                    </span>
+                </p>
+            }
+            else if (Model.Result.PredictionMode == "Momentum (ROC)")
+            {
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Día</th>
+                            <th>Fecha</th>
+                            <th>Precio</th>
+                            <th>ROC (5 días)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Result.RocResults)
+                        {
+                            <tr>
+                                <td>@item.Day</td>
+                                <td>@item.Date.ToString("yyyy-MM-dd")</td>
+                                <td>@item.Price.ToString("N2")</td>
+                                <td>
+                                    @if (item.ROC.HasValue)
+                                    {
+                                        <span class="@(item.ROC >= 0 ? "text-success" : "text-danger")">
+                                            @item.ROC.Value.ToString("N2")%
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span>N/A</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a asp-controller="Home" asp-action="Index" class="btn btn-primary">
+            Nueva Predicción
+        </a>
+    </div>
+</div>

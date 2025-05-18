@@ -1,0 +1,37 @@
+﻿<!-- WebApp/Views/Home/Index.cshtml -->
+@model AssetInputViewModel
+
+<div class="container mt-4">
+    <h2>Predictor de Tendencia de Activos</h2>
+
+    <div class="card">
+        <div class="card-header">
+            Modo actual: @ViewBag.CurrentMode
+        </div>
+        <div class="card-body">
+            <form asp-action="Calculate" method="post">
+                <div class="form-group">
+                    <label for="RawData">Ingrese los datos históricos (20 días):</label>
+                    <textarea asp-for="RawData" class="form-control" rows="10"
+                              placeholder="Ejemplo:&#10;2025-05-01, 150.35&#10;2025-05-02, 152.10"></textarea>
+                    <span asp-validation-for="RawData" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-3">
+                    Calcular Predicción
+                </button>
+            </form>
+
+            <div class="mt-3">
+                <a asp-controller="Prediction" asp-action="Modes"
+                   class="btn btn-outline-secondary">
+                    Cambiar Modo de Predicción
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

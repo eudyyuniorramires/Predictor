@@ -1,32 +1,84 @@
+using Logica.DTOs;
+using Logica.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Predictor.Models;
+using Predictor.ViewModels;
 using System.Diagnostics;
+using static Logica.Models.PredictionModeSinglenton;
 
 namespace Predictor.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly IPredictionService _predictionService;
+        private readonly PredictionModeSingleton _predictionMode;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(
+            IPredictionService predictionService,
+            PredictionModeSingleton predictionMode)
         {
-            _logger = logger;
+            _predictionService = predictionService;
+            _predictionMode = predictionMode;
         }
 
         public IActionResult Index()
         {
-            return View();
+            ViewBag.CurrentMode = _predictionMode.SelectedMode;
+            return View(new AssetInputViewModel());
         }
 
-        public IActionResult Modo()
+        [HttpPost]
+        public IActionResult Calculate(AssetInputViewModel model)
         {
-            return View();
+            if (!ModelState.IsValid)
+            {
+                ViewBag.CurrentMode = _predictionMode.SelectedMode;
+                return View("Index", model);
+            }
+
+            var assetData = ParseInputData(model.RawData);
+            PredictionResultDto result;
+
+            switch (_predictionMode.SelectedMode)
+            {
+                case "Regresión Lineal":
+                    result = _predictionService.CalculateLinearRegression(assetData);
+                    break;
+                case "Momentum (ROC)":
+                    result = _predictionService.CalculateMomentumROC(assetData);
+                    break;
+                default:
+                    result = _predictionService.CalculateSMACrossover(assetData);
+                    break;
+            }
+
+            var viewModel = new PredictionResultViewModel
+            {
+                Result = result,
+                InputData = assetData
+            };
+
+            return View("Result", viewModel);
         }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+        private List<DataDto> ParseInputData(string rawData)
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            var lines = rawData.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+            var result = new List<DataDto>();
+
+            foreach (var line in lines)
+            {
+                var parts = line.Split(',');
+                if (parts.Length != 2) continue;
+
+                if (DateTime.TryParse(parts[0].Trim(), out var date) &&
+                    decimal.TryParse(parts[1].Trim(), out var value))
+                {
+                    result.Add(new DataDto { Date = date, Value = value });
+                }
+            }
+
+            return result.OrderBy(d => d.Date).ToList();
         }
     }
 }
